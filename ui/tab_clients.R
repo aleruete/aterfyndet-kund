@@ -1,11 +1,12 @@
 tagList(
     box(
       id = "kundertab",
-      status = "primary",
-      type = "tabs",
+      status = "secondary",
+      headerBorder = FALSE,
+      # type = "tabs",
       solidHeader = FALSE, 
       closable = FALSE,
-      collapsable = FALSE,
+      collapsible = FALSE,
       width = 12,
       uiOutput("selectedClient"),
       ## Payments

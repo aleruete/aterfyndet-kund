@@ -95,14 +95,12 @@ function(input, output, session) {
     # updateTextInput(session, "pass", label = NULL, value = "")
     
     # removeModal()
-print(clients$data)
-    
+
     tryCatch({
       clients$selected <- clients$data |> 
         # filter(användare == users$username)
       filter(memberId == users$memberId)
 
-print(clients$selected)
       if (nrow(clients$selected) > 0) {
         authorised$val <- TRUE
       }else{
@@ -153,14 +151,7 @@ print(clients$selected)
       # Load rest of data from database ####
       withProgress({
           setProgress(.1)
-          # clients$data <- dbReadTable(conn = con(), "clients")
-          # id_kund <- users$data |> 
-          #   filter(användare == users$username) |> 
-          #   pull(id_kund)
-          # clients$selected <- clients$data |> 
-          #   filter(id == id_kund)
-          # selectInput("clientFilter", "Kund id:", 
-          #             choices = NULL),
+          
         
           id_kund <- clients$selected$id
 
@@ -183,182 +174,7 @@ print(clients$selected)
           message("All loaded")
           setProgress(1)
       }, message = "Läser in bakgrund data")
-
-    # if (authorised$isadmin) { #authorised$val & 
-    # } else { ## if not admin
-    #   shinyalert("Aja baja!", "Du har inte behörighet", type = "error" , timer = 2000)
-    # }
   })
-  
-  observe({
-    if (!is.null(stock$data)) {
-      submis <- max(stock$data$id_inlamn, 0, na.rm = TRUE )
-      updateNumericInput(session, "submissionid", value = submis)
-    }
-  })
-  
-# Lager ####
-## Lager list ####
-  output$stockList <- renderDataTable({
-
-    if (is.null(stock$data)) return(NULL)
-    stocktab <- stock$data |> 
-      filter(if (input$showInvalid) giltig %in% c(0,1) else giltig == 1,
-             if (input$showSold) sald %in% c(0,1) else sald == 0) |>
-      left_join(category$data, by = c("id_kategori" = "id")) |> 
-      select(id_kund, kategori, beskrivning, pris, artikel, kod, 
-             sald, sald_datum, sald_pris, giltig) |> 
-      mutate(#id_kund = as.factor(id_kund), 
-             kategori = as.factor(kategori), 
-             artikel = as.factor(artikel),
-             sald = as.logical(sald), 
-             giltig = as.logical(giltig))
-    
-    datatable(stocktab,
-              # editable = list(target = 'cell', 
-              #                 disable = list(columns = c(0:1,4:9))),
-              class = 'row-border stripe compact hover',
-              rownames = FALSE, selection = "single",
-              extensions = 'Buttons',
-              # autoHideNavigation = TRUE,
-              colnames = c("Kund id", "Kategori", "Beskrivning", "Pris", "Artikel", 
-                           "Kod", "Såld", "Såld datum", "Såld pris", "Giltig"),
-              # filter = "top",
-              options = list(
-                dom = 'lftBp',
-                # dom = "<'top'<'left-col'B><'center-col'r><'right-col'f>>ti<'clear'>", #'Btfi',
-                columnDefs = list(
-                  list(targets = c(9), visible = FALSE)
-                  ),
-                buttons = list(
-                  list(extend = 'copy',
-                       text =  '<i class="fa fa-files-o"></i>',
-                       titleAttr = 'Kopiera'),
-                  list(extend = 'excel',
-                       text = '<i class="fa fa-file-excel-o"></i>',
-                       titleAttr = 'Excel'),
-                  list(extend = 'print',
-                       text = '<i class="fa fa-file-pdf-o"></i>',
-                       titleAttr = 'PDF')
-                ),
-                stateSave = TRUE,
-                language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Swedish.json'),
-                searching = TRUE, 
-                autoFill = FALSE, 
-                ordering = TRUE, 
-                lengthMenu = list(c(10, 25, 50, 100, -1), 
-                                  c('10', '25', '50', '100','Alla')),
-                pageLength = 25,
-                lengthChange = TRUE, scrollX = TRUE, scrollY = FALSE, 
-                paging = TRUE)
-              ) |> 
-      formatCurrency(c(4,9), currency = "kr", before = FALSE) |> 
-      formatStyle(columns = 1, valueColumns = 7, target = "row",
-                     backgroundColor = styleEqual(c(TRUE), c("grey"))) |> 
-      formatStyle(columns = 1, valueColumns = 10, target = "row",
-                  backgroundColor = styleEqual(c(FALSE), c("#db8383")))
-      
-  })
-  
-  proxyStockList <- dataTableProxy("stockList")
-  
-  # Clients ####
-  # output$clientsList <- renderDataTable({
-  #   if (is.null(clients$data)) return(NULL)
-  #   clientsTab <- clients$data |>
-  #     select(id, namn, pnr, sista4, adress, postnummer, ort, telefon, epost, giltig) |> 
-  #     mutate(id = as.integer(id),
-  #            pnr = paste0(sprintf("%06d", coalesce(pnr, 0)), "-", 
-  #                         sprintf("%04d", coalesce(sista4, 0))),
-  #            giltig = as.logical(giltig)) |> 
-  #     select(-sista4)
-  #   
-  #   datatable(clientsTab, 
-  #             class = 'row-border stripe compact hover',
-  #             rownames = FALSE, selection = 'none', 
-  #             extensions = 'Buttons', 
-  #             # autoHideNavigation = FALSE,
-  #             # editable = list(target = 'cell', 
-  #             #                 disable = list(columns = c(0,2))),
-  #             colnames = c("Kund id", "Namn", "PNR","Adress", "Postnummer", "Ort",
-  #                          "Telefon", "e-post", "Giltig"),
-  #             options = list(
-  #               dom = 'lftBp',
-  #               buttons = list(
-  #                 list(extend = 'copy',
-  #                      text =  '<i class="fa fa-files-o"></i>',
-  #                      titleAttr = 'Kopiera'),
-  #                 list(extend = 'excel',
-  #                      text = '<i class="fa fa-file-excel-o"></i>',
-  #                      titleAttr = 'Excel'),
-  #                 list(extend = 'print',
-  #                      text = '<i class="fa fa-file-pdf-o"></i>',
-  #                      titleAttr = 'PDF')
-  #               ),
-  #               stateSave = TRUE,
-  #               language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Swedish.json'),
-  #               searching = TRUE, autoFill = FALSE, ordering = TRUE, 
-  #               lengthMenu = list(c(10, 25, 50, 100, -1), 
-  #                                 c('10', '25', '50', '100','Alla')),
-  #               pageLength = 25,
-  #               lengthChange = TRUE, scrollX = TRUE, scrollY = FALSE, 
-  #               paging = TRUE)
-  #   )
-  # })
-  # 
-  # proxyClientList <- dataTableProxy("clientsList")
-  # 
-  # observeEvent(input$clientsList_cell_edit, {
-  #   info <- input$clientsList_cell_edit
-  # 
-  #   ## TODO this IF should not be necessary
-  #   if (!info$col %in% c(0,2)) {
-  #     i = info$row
-  #     j = info$col + 1
-  #     
-  #     ## TODO should I treat empty strings as NULL?
-  #     clientsTab <- clients$data |> 
-  #       select(id, namn, pnr, adress, postnummer, ort, telefon, epost, giltig)
-  #     column <- names(clientsTab)[j]
-  # 
-  #     if (column == "giltig") {
-  #       if (!info$value %in% c("true", "false", "TRUE", "FALSE")) {
-  #         shinyalert("Aja baja!", "Giltig kan bara vara 'true' eller 'false'", 
-  #                    type = "error" , timer = 2000)
-  #         info$value <- NULL
-  #       } else {
-  #         info$value <- as.integer(as.logical(info$value))
-  #       }
-  #     }
-  #     
-  #     if (column == "epost") {
-  #       if(!isValidEmail(info$value)) {
-  #         shinyalert("Aja baja!", "E-post är inte giltig", 
-  #                    type = "error" , timer = 2000)
-  #         info$value <- NULL
-  #       }
-  #     }
-  # 
-  #     info$value <- coalesce(info$value, clientsTab[i, j])
-  #     clientsTab[i,j] <- info$value
-  # 
-  #     # update reactive value
-  #     # wItem <- which(clients$data$id %in% clientsTab$id[i])
-  #     # clients$data[wItem, j] <- info$value
-  # 
-  #     # write to database
-  #     dbExecute(con(), glue("UPDATE clients
-  #                           SET {column} = '{info$value}'
-  #                           WHERE id = {clientsTab$id[i]};"))
-  # 
-  #     ## synk to DropB if in Production
-  #     if (production) {
-  #       drop_synk_up()
-  #     }
-  #   }
-  #   
-  # })     
-  
   
   
   ##client report ####
@@ -377,119 +193,10 @@ print(clients$selected)
                h4(glue("Antal inlämnat artiklar: {nitems$items}")),
                h5(glue("Antal sålda artiklar: {nitems$sold}"))
         )
-      )#,
-      # fluidRow(
-      #   column(width = 6, offset = 6,
-      #          dateRangeInput("reportMonth", "Period:",
-      #                         start = floor_date(Sys.Date(), unit = "month"),
-      #                         end = ceiling_date(Sys.Date(), unit = "month") - 1,
-      #                         min = "2020-01-01",
-      #                         max = ceiling_date(Sys.Date(), unit = "month") - 1,
-      #                         format = "yyyy-mm-dd", language = "sv",
-      #                         separator = " - ")
-      #   )
-      # )
+      )
+      
     )
   })
-  
-  # output$clientReportAll <- renderUI({
-  #   req(input$clientFilter)
-  #   if (input$clientFilter == "all") {
-  #     total <- stock$data |> 
-  #       filter(sald == 1, 
-  #              giltig == 1) |> 
-  #       reframe(items = n(),
-  #               inkomst = sum(sald_pris),
-  #               vinst = sum(sald_pris) * 0.8 * 0.6)
-  #     tagList(
-  #       # h3(glue("{clients$selected$namn} (ID: {clients$selected$id})")),
-  #       h4(glue("Antal sålda artiklar: {total$items}"))
-  #     )
-  #   }
-  # })
-  
-  # output$clientReportAllPlot <- renderPlot({
-  #   req(input$clientFilter)
-  #   if (input$clientFilter == "all") {
-  #     total <- stock$data |> 
-  #       filter(sald == 1,
-  #              giltig == 1) |> 
-  #       group_by(sald_datum) |> 
-  #       reframe(inkomst = sum(sald_pris),
-  #               vinst = sum(sald_pris) * 0.8 * 0.6)
-  #     
-  #     par(mar = c(3,6,1,1), las = 1)
-  #     barplot(total$inkomst, names.arg = as.Date(total$sald_datum),  
-  #             xlab = "datum", ylab = "", col = "#db7aa1",
-  #             border = NA)  
-  #   }
-  # })
-  
-  # output$clientReportTotal <- renderUI({
-  # output$clientReportTotal <- renderInfoBox({
-  #   req(clients$selected)
-  #   if (is.null(clients$selected)) return(NULL)
-  #   total <- stock$data |> 
-  #     filter(id_kund == clients$selected$id,
-  #            sald == 1,
-  #            giltig == 1) |> 
-  #     summarise(items = n(), 
-  #               sold = sum(sald_pris),
-  #               commission = sum(sald_pris) * 0.8 * 0.4,
-  #               income = sum(sald_pris) * 0.8 * 0.6)
-  # 
-  #   infoBox(
-  #     title = glue("Total sålt: {total$sold} kr"),
-  #     value = glue("Total provision: {total$commission} kr"),
-  #     subtitle = glue("Total intäkt: {total$income} kr"),
-  #     color = "indigo",
-  #     icon = icon("dollar")
-  #   )
-  #   
-  # })
-  
-  # output$clientReportMonth <- renderInfoBox({ #renderUI({
-  #   req(clients$selected)
-  #   if (is.null(clients$selected)) return(NULL)
-  #   total <- stock$data |> 
-  #     filter(id_kund == clients$selected$id,
-  #            sald == 1,
-  #            giltig == 1) |> 
-  #     mutate(sald_datum = as.Date(sald_datum)) |>
-  #     filter(sald_datum >= input$reportMonth[1] & 
-  #            sald_datum <= input$reportMonth[2]) |> 
-  #     summarise(items = n(), 
-  #               sold = sum(sald_pris),
-  #               commission = sum(sald_pris) * 0.8 * 0.4,
-  #               income = sum(sald_pris) * 0.8 * 0.6)
-  #   
-  #   infoBox(
-  #     title = glue("Sålt i period: {total$sold} kr"),
-  #     value = glue("Provision i period: {total$commission} kr"),
-  #     # subtitle = glue("Intäkt: {total$income} kr"),
-  #     color = "fuchsia",
-  #     icon = icon("dollar")
-  #   )
-  # })
-  
-  ## UI for client debt
-  # output$clientPayments <- renderUI({
-  #   req(clients$selected)
-  #   if (is.null(clients$selected)) return(NULL)
-  #   fluidRow(
-  #     column(width = 6,
-  #            infoBoxOutput("clientDebt", width = 12)
-  #     ),
-  #     column(width = 6, 
-  #            actionButton("makePayment", "Utbetalning", 
-  #                         icon = icon("hand-holding-dollar"),
-  #                         status = "info", style = "margin-top: 20px; margin-left: 10px;")#,
-  #            # actionButton("reportPayment", "Ladda ner rapport", 
-  #            #              icon = icon("hand-holding-dollar"),
-  #            #              status = "info", style = "margin-top: 20px; margin-left: 10px;")
-  #     )
-  #   )
-  # })
   
   output$clientDebt <- renderInfoBox({
     req(clients$selected)
@@ -513,7 +220,7 @@ print(clients$selected)
     infoBox(
       title = "Att betala",
       value = glue("{payments$debt} kr"),
-      color = "olive",
+      color = "gray-dark",
       icon = icon("hand-holding-dollar")
     )
     
@@ -525,26 +232,26 @@ print(clients$selected)
   
   ## payments ####
   output$paymentsList <- renderDataTable({
-    
+
     if (is.null(payments$data)) return(NULL)
     paymentstab <- payments$data |> 
-      select(-id) |> 
+      select(datum, belopp, betalningssatt) |> 
       mutate(#id_kund = as.factor(id_kund), 
         belopp = as.numeric(belopp), 
-        datum = ymd(datum),
-        utbetald = as.logical(utbetald))
+        datum = ymd(datum))#,
+        # utbetald = as.logical(utbetald))
     
     datatable(paymentstab,
               # editable = list(target = 'cell', 
               #                 disable = list(columns = c(0:1,4:9))),
               class = 'row-border stripe compact hover',
-              rownames = FALSE, selection = "single",
+              rownames = FALSE, selection = "none",
               extensions = 'Buttons', 
               # autoHideNavigation = TRUE,
-              colnames = c("Kund id", "Belopp", "Datum", "Betalningssätt", "Utbetald"),
+              colnames = c("Datum", "Belopp", "Betalningssätt"), #"Kund id", , "Utbetald"
               # filter = "top",
               options = list(
-                dom = 'lftBp', 
+                dom = 'tlBp', 
                 # columnDefs = list(
                 #   list(targets = c(9), visible = FALSE)
                 # ),
@@ -570,7 +277,7 @@ print(clients$selected)
                 lengthChange = TRUE, scrollX = TRUE, scrollY = FALSE, 
                 paging = TRUE)
     ) |> 
-      formatCurrency(c(2), currency = "kr", before = FALSE)
+      formatCurrency(c(2), currency = " kr", before = FALSE)
     
   })
   
