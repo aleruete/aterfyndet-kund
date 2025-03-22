@@ -2,9 +2,9 @@ function(input, output, session) {
 
 # Reactive values ####
   con <- reactiveVal()
-  # url <- reactiveValues(query = NULL, hash = NULL)
+  url <- reactiveValues(query = NULL)
   authorised <- reactiveValues(val = FALSE, isadmin = NULL, auth = NULL)
-  users <- reactiveValues(data = NULL, username = NULL, hash = NULL)
+  users <- reactiveValues(data = NULL, username = NULL, memberId = NULL, hash = NULL)
   synk <- reactiveValues(status = FALSE, timestamp = NULL)
   stock <- reactiveValues(data = NULL, selected = NULL, print = NULL)
   clients <- reactiveValues(data = NULL, selected = NULL)
@@ -57,41 +57,58 @@ function(input, output, session) {
 
       if (!is.null(con())) {
         users$data <- dbReadTable(conn = con(), "users")
+        clients$data <- dbReadTable(conn = con(), "clients")
+        
         message("You are in Neo")
         setProgress(1)
       } else { message("Couldn't connect"); stop() }
     }, message = "Läser in bakgrund data")
   })
   
-  # Login  #####  
+  ### Pre populate some fields with url e.g. url/?userID=aleruete ####
   observe({
-    req(!authorised$val)
-    loginDialog()
+    url$query <- parseQueryString(session$clientData$url_search)
+
+    if (!is.null(url$query[['memberId']])) {
+      users$memberId <- url$query[['memberId']]
+    }
+
   })
-  observeEvent(input$keyPressed, {
-    shinyjs::click("login")
-  }) 
+  
+  # Login  #####  
+  # observe({
+  #   req(!authorised$val)
+  #   loginDialog()
+  # })
+  # 
+  # observeEvent(input$keyPressed, {
+  #   shinyjs::click("login")
+  # }) 
   
   ## hit login ####
-  observeEvent(input$login, {
-    if (is.na(input$username) | input$username == "")  return()
-    if (is.na(input$pass) | input$pass == "")  return()
+  # observeEvent(input$login, {
+  observeEvent(users$memberId, {
+    if (is.na(users$memberId) | users$memberId == "")  return()
     
-    users$username <- input$username
-    users$hash <- encrypt_string(input$pass, key = keysecret)
-    updateTextInput(session, "pass", label = NULL, value = "")
+    # users$username <- input$username
+    # users$hash <- encrypt_string(input$pass, key = keysecret)
+    # updateTextInput(session, "pass", label = NULL, value = "")
     
-    removeModal()
-
+    # removeModal()
+print(clients$data)
+    
     tryCatch({
-      logingin <- users$data |> 
-        filter(användare == users$username)
+      clients$selected <- clients$data |> 
+        # filter(användare == users$username)
+      filter(memberId == users$memberId)
 
-      if (identical(logingin$hash, users$hash)) {
+print(clients$selected)
+      if (nrow(clients$selected) > 0) {
         authorised$val <- TRUE
       }else{
         authorised$val <- FALSE
       }
+      
     }, error = function(w) w, warning = function(w) w,
     finally = {
       if (is.null(authorised$val)) {
@@ -113,12 +130,10 @@ function(input, output, session) {
                    confirmButtonText = "OK", #confirmButtonCol = "#6AA039",
                    timer = 0, animation = TRUE
             )
-        loginDialog()
+        # loginDialog()
       } #if authorised$val = FALSE
 
       if (authorised$val) {
-        authorised$isadmin <- as.logical(logingin$is_admin)
-
         shinyalert(title = "Välkommen",
                    text = "Du har loggat in",
                    closeOnEsc = TRUE, closeOnClickOutside = TRUE, html = FALSE,
@@ -134,21 +149,21 @@ function(input, output, session) {
   ## If authenticated #####
   observeEvent(authorised$val,{
     req(authorised$val)
-print(authorised$isadmin)
 
       # Load rest of data from database ####
       withProgress({
           setProgress(.1)
-          clients$data <- dbReadTable(conn = con(), "clients")
-          id_kund <- users$data |> 
-            filter(användare == users$username) |> 
-            pull(id_kund)
-          
-          clients$selected <- clients$data |> 
-            filter(id == id_kund)
+          # clients$data <- dbReadTable(conn = con(), "clients")
+          # id_kund <- users$data |> 
+          #   filter(användare == users$username) |> 
+          #   pull(id_kund)
+          # clients$selected <- clients$data |> 
+          #   filter(id == id_kund)
           # selectInput("clientFilter", "Kund id:", 
           #             choices = NULL),
-# print(clients$selected)
+        
+          id_kund <- clients$selected$id
+
           setProgress(.3)
           stock$data <- dbGetQuery(conn = con(), glue("SELECT * FROM stock WHERE id_kund = {clients$selected$id}")) |> 
             select(-id) |>

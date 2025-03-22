@@ -1,32 +1,32 @@
 # Define UI for application that draws a histogram
 header <- dashboardHeader(
-  title = myDashboardBrand(
-    title = "Återfyndet", 
-    color = "success",
-    href = "https://aterfyndet.se/",
-    image = "./img/Blanco Círculo Logo.png"
-  ),
-  titleWidth = widthSide,
-  status = "success",
-  leftUi = NULL, #dropdownMenuOutput("filters"),
+  # title = myDashboardBrand(
+  #   title = "Återfyndet", 
+  #   color = "success",
+  #   href = "https://aterfyndet.se/",
+  #   image = "./img/Blanco Círculo Logo.png"
+  # ),
+  # titleWidth = widthSide,
+  compact = TRUE,
+  disable = TRUE)#,
+  # status = "success",
+  # leftUi = NULL, #dropdownMenuOutput("filters"),
   # rightUi = tagList(
   #   userOutput("user")
   # ),
-  controlbarIcon = icon("gear"),
-  fixed = TRUE)
+  # controlbarIcon = icon("gear"),
+  # fixed = FALSE)
 
-sidebar <- dashboardSidebar(width = widthSide,
-                            skin = "light",
-                            minified = TRUE,
-                            collapsed = TRUE,
-                            sidebarMenu(id = "tabs",
-                                        # menuItem("Lager",  tabName = "Stock",
-                                        #          icon = icon("folder-open", class = "fas")),
-                                        menuItem("Kunder", tabName = "Clients",
-                                                 icon = icon("user", class = "fas")),
-                                        menuItem("Boka Tid", tabName = "Booktime",
-                                                 icon = icon("info", class = "fas"))#,
-                            )
+sidebar <- dashboardSidebar(skin = "light",
+                            # width = widthSide,
+                            disable = TRUE#,
+                            # minified = TRUE,
+                            # collapsed = TRUE,
+                            # sidebarMenu(id = "tabs",
+                            #             menuItem("Kunder", tabName = "Clients",
+                            #                      icon = icon("user", class = "fas"))
+                            #            
+                            # )
 )
 
 body <- dashboardBody(
@@ -51,22 +51,15 @@ body <- dashboardBody(
     tags$style(".container-drag-source, .box-dad {font-size: 18px;}"),
     tags$style("html, body {overflow: visible !important;") ## this is to fix the problem with scrolling when equisse module is added
   ),
-  
-  # fluidRow(
-  tabItems(
-    ############# Inventory ###################
-    # tabItem(tabName = "Stock", 
-    #         load_ui_content("ui/tab_stock.R")
-    # ),
-    ############# Users ###################
-    tabItem(tabName = "Clients", 
-            load_ui_content("ui/tab_clients.R")
-    ),
-    ############# BookTime ###################
-    tabItem(tabName = "Booktime",
-            load_ui_content("ui/tab_book.R")
-    )
-  )# end tabItems
+  load_ui_content("ui/tab_clients.R")
+  # # fluidRow(
+  # tabItems(
+  #   ############# Users ###################
+  #   tabItem(tabName = "Clients", 
+  #           load_ui_content("ui/tab_clients.R")
+  #   )
+  #   
+  # )# end tabItems
   # )
 )
 

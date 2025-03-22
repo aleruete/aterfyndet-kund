@@ -1,5 +1,5 @@
 v <- numeric_version("0.5.0")
-production <- TRUE
+production <- FALSE
 # sudo su - -c "R -e \"install.packages('any_package', repos='https://cran.rstudio.com/')\""
 library(shiny)
 conflicted::conflict_prefer_all("DT", "shiny", quiet = TRUE)
