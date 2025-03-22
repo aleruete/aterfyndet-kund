@@ -8,8 +8,8 @@ header <- dashboardHeader(
   # ),
   # titleWidth = widthSide,
   compact = TRUE,
+  status = "dark",
   disable = TRUE)#,
-  # status = "success",
   # leftUi = NULL, #dropdownMenuOutput("filters"),
   # rightUi = tagList(
   #   userOutput("user")
@@ -47,20 +47,9 @@ body <- dashboardBody(
     # Include our custom CSS
     # tags$link(rel = "stylesheet", href = "styles.css"),
     tags$link(rel = "preconnect", href = "https://fonts.googleapis.com"),
-    tags$link(rel = "shortcut icon", href = "./img/Negro Círculo Logo.png"),
-    tags$style(".container-drag-source, .box-dad {font-size: 18px;}"),
-    tags$style("html, body {overflow: visible !important;") ## this is to fix the problem with scrolling when equisse module is added
+    tags$link(rel = "shortcut icon", href = "./img/Negro Círculo Logo.png")
   ),
   load_ui_content("ui/tab_clients.R")
-  # # fluidRow(
-  # tabItems(
-  #   ############# Users ###################
-  #   tabItem(tabName = "Clients", 
-  #           load_ui_content("ui/tab_clients.R")
-  #   )
-  #   
-  # )# end tabItems
-  # )
 )
 
 

@@ -220,15 +220,11 @@ function(input, output, session) {
     infoBox(
       title = "Att betala",
       value = glue("{payments$debt} kr"),
-      color = "gray-dark",
+      color = "info", #"gray-dark",
       icon = icon("hand-holding-dollar")
     )
     
   })
-  
-  
-  
-  
   
   ## payments ####
   output$paymentsList <- renderDataTable({

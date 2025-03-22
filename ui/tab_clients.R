@@ -1,7 +1,7 @@
 tagList(
     box(
       id = "kundertab",
-      status = "secondary",
+      status = "gray-dark",
       headerBorder = FALSE,
       # type = "tabs",
       solidHeader = FALSE, 

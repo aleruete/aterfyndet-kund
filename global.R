@@ -1,5 +1,5 @@
 v <- numeric_version("0.5.0")
-production <- FALSE
+production <- TRUE
 # sudo su - -c "R -e \"install.packages('any_package', repos='https://cran.rstudio.com/')\""
 library(shiny)
 conflicted::conflict_prefer_all("DT", "shiny", quiet = TRUE)
@@ -10,17 +10,16 @@ suppressPackageStartupMessages(library(shinyjs))
 library(shinyalert)
 library(shinyWidgets)
 library(fresh)
-library(waiter)
+# library(waiter)
 
 library(DT)
 suppressPackageStartupMessages(library(tidyverse))
 conflicted::conflicts_prefer(dplyr::filter, .quiet = TRUE)
-# library(dplyr)
 library(lubridate)
 library(httr)
 library(jsonlite)
 library(glue)
-library(safer)
+# library(safer)
 
 # library(quarto)
 # library(knitr)
@@ -37,30 +36,20 @@ bs4dashTheme <- create_theme(
   theme = "default", #https://bootswatch.com/
   bs4dash_vars(
     # navbar_white = "#75b8d1",
+    # "gray-dark" = "#000000",
     navbar_light_color = "#FFF", #"#4e4429",
     navbar_light_active_color = "#FFF",
     navbar_light_hover_color = "#bec5cb"
   ),
-  bs4dash_yiq(
-    contrasted_threshold = 10,
-    text_dark = "#FFF",
-    text_light = "#4e4429"
-  ),
   bs4dash_layout(
     main_bg = "#cdd1d5"
   ),
-  # bs4dash_sidebar_light(
-  #   bg = "#FFF",
-  #   color = "#4e4429",
-  #   hover_color = "#bec5cb",
-  #   submenu_bg = "#FFF",
-  #   submenu_color = "#4e4429",
-  #   submenu_hover_color = "#bec5cb"
-  # ),
   bs4dash_status(
     primary = "#F48635",
+    info = "#000000",
     danger = "#BF616A",
     light = "#fff",
+    dark = "#000000",
     success = "#DF357B"
   ),
   bs4dash_color(
