@@ -1,0 +1,11 @@
+<iframe id="myIframe" width="100%" height="500px" style="border:none;"></iframe>
+
+<script>
+  // Listen for messages from Wix Page
+  window.addEventListener("message", function(event) {
+    if (event.data && event.data.memberId) {
+      let memberId = event.data.memberId;
+      document.getElementById("myIframe").src = "https://aterfyndet.shinyapps.io/aterfyndet-kund/?memberId=" + encodeURIComponent(memberId);
+    }
+  }, false);
+</script>
