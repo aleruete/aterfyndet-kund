@@ -45,7 +45,7 @@ body <- dashboardBody(
             document.getElementById(e_id).focus();
                                   });'),
     # Include our custom CSS
-    # tags$link(rel = "stylesheet", href = "styles.css"),
+    tags$link(rel = "stylesheet", href = "styles.css"),
     tags$link(rel = "preconnect", href = "https://fonts.googleapis.com"),
     tags$link(rel = "shortcut icon", href = "./img/Negro Círculo Logo.png")
   ),

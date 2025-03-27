@@ -189,9 +189,9 @@ function(input, output, session) {
     tagList(
       fluidRow(
         column(width = 12,
-               h3(glue("{clients$selected$namn} (ID: {clients$selected$id})")),
-               h4(glue("Antal inlämnat artiklar: {nitems$items}")),
-               h5(glue("Antal sålda artiklar: {nitems$sold}"))
+               h3(glue("{clients$selected$namn} (ID: {clients$selected$id})"))#,
+               # h4(glue("Antal inlämnat artiklar: {nitems$items}")),
+               # h5(glue("Antal sålda artiklar: {nitems$sold}"))
         )
       )
       
@@ -218,7 +218,7 @@ function(input, output, session) {
     payments$debt <- round(totalSold$commission - totalPaid$paied, 2)
     
     infoBox(
-      title = "Att betala",
+      title = "Innestående saldo",
       value = glue("{payments$debt} kr"),
       color = "info", #"gray-dark",
       icon = icon("hand-holding-dollar")
@@ -278,6 +278,21 @@ function(input, output, session) {
   })
   
   proxyPaymentsList <- dataTableProxy("paymentsList")
+  
+  output$paymentsListUI <- renderUI({
+    req(clients$selected)
+    
+    tagList(
+      fluidRow(
+        column(width = 12,
+               br(),
+               h5("Utbetalnings historik"),
+               dataTableOutput("paymentsList")
+        )
+      )
+      
+    )
+  })
   
    
   # on session end #### 

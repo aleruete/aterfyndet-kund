@@ -53,6 +53,6 @@ bs4dashTheme <- create_theme(
     success = "#DF357B"
   ),
   bs4dash_color(
-    gray_900 = "#454D55"
+    gray_900 = "#000000"
   )
 )
