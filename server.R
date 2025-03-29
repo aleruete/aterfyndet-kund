@@ -120,14 +120,7 @@ function(input, output, session) {
         )
       }
       if (!authorised$val) {
-        shinyalert(title = "Inloggningen misslyckades",
-                   text = HTML("Kontrollera dina uppgifter och försök igen."),
-                   closeOnEsc = TRUE, closeOnClickOutside = TRUE, html = TRUE,
-                   type = "error",
-                   showConfirmButton = TRUE, showCancelButton = FALSE,
-                   confirmButtonText = "OK", #confirmButtonCol = "#6AA039",
-                   timer = 0, animation = TRUE
-            )
+        return(NULL)
         # loginDialog()
       } #if authorised$val = FALSE
 
@@ -151,14 +144,11 @@ function(input, output, session) {
       # Load rest of data from database ####
       withProgress({
           setProgress(.1)
-          
-        
-          id_kund <- clients$selected$id
 
           setProgress(.3)
           stock$data <- dbGetQuery(conn = con(), glue("SELECT * FROM stock WHERE id_kund = {clients$selected$id}")) |> 
             select(-id) |>
-            mutate(id_kund = as.integer(id_kund), 
+            mutate(id_kund = as.integer(clients$selected$id), 
                    id_kategori = as.integer(id_kategori), 
                    pris = as.numeric(pris), 
                    artikel = as.integer(artikel),
@@ -180,26 +170,38 @@ function(input, output, session) {
   ##client report ####
   output$selectedClient <- renderUI({
     req(clients$selected)
-    nitems <- stock$data |> 
-      filter(id_kund == clients$selected$id, 
-             giltig == 1) |> 
-      reframe(items = n(),
-              sold = sum(sald))
+    if(nrow(clients$selected) > 0) {
     
-    tagList(
-      fluidRow(
-        column(width = 12,
-               h3(glue("{clients$selected$namn} (ID: {clients$selected$id})"))#,
-               # h4(glue("Antal inlämnat artiklar: {nitems$items}")),
-               # h5(glue("Antal sålda artiklar: {nitems$sold}"))
+      nitems <- stock$data |> 
+        filter(id_kund == clients$selected$id, 
+               giltig == 1) |> 
+        reframe(items = n(),
+                sold = sum(sald))
+      
+      tagList(
+        fluidRow(
+          column(width = 12,
+                 h3(glue("{clients$selected$namn} (ID: {clients$selected$id})"))#,
+                 # h4(glue("Antal inlämnat artiklar: {nitems$items}")),
+                 # h5(glue("Antal sålda artiklar: {nitems$sold}"))
+          )
+        )
+        
+      )
+    } else {
+      tagList(
+        fluidRow(
+          column(width = 12,
+                 h3("Det verkar som att du har ingen säljare profil aktiverad."),
+                 h4("Kontakta oss om du vet du har produkter i butiken")
+          )
         )
       )
-      
-    )
+    }
   })
   
   output$clientDebt <- renderInfoBox({
-    req(clients$selected)
+    req(authorised$val)
     if (is.null(clients$selected)) {
       payment$debt <- NULL
       return(NULL)
@@ -280,6 +282,7 @@ function(input, output, session) {
   proxyPaymentsList <- dataTableProxy("paymentsList")
   
   output$paymentsListUI <- renderUI({
+    req(authorised$val)
     req(clients$selected)
     
     tagList(
