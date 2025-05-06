@@ -192,8 +192,8 @@ function(input, output, session) {
       tagList(
         fluidRow(
           column(width = 12,
-                 h3("Det verkar som att du har ingen säljare profil aktiverad."),
-                 h4("Kontakta oss om du vet du har produkter i butiken")
+                 h3("Det verkar som att din säljprofil inte är aktiverad."),
+                 h4("Om det har gått mer än tre veckor sedan du lämnade in kläder, vänligen kontakta oss.")
           )
         )
       )
