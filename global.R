@@ -10,7 +10,6 @@ suppressPackageStartupMessages(library(shinyjs))
 library(shinyalert)
 library(shinyWidgets)
 library(fresh)
-# library(waiter)
 
 library(DT)
 suppressPackageStartupMessages(library(tidyverse))
@@ -19,10 +18,6 @@ library(lubridate)
 library(httr)
 library(jsonlite)
 library(glue)
-# library(safer)
-
-# library(quarto)
-# library(knitr)
 
 library(DBI)
 library(RSQLite)
