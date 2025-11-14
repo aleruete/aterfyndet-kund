@@ -215,9 +215,9 @@ function(input, output, session) {
     totalPaid <- payments$data |> 
       filter(id_kund == clients$selected$id,
              utbetald == 1) |> 
-      summarise(paied = sum(belopp))
+      summarise(payed = sum(belopp))
     
-    payments$debt <- round(totalSold$commission - totalPaid$paied, 2)
+    payments$debt <- round(totalSold$commission - totalPaid$payed, 0)
     
     infoBox(
       title = "Innestående saldo",
