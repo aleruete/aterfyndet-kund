@@ -28,11 +28,11 @@ drop_auth(rdstoken = "./token.rds")
 
 ### Create the theme
 bs4dashTheme <- create_theme(
-  theme = "default", #https://bootswatch.com/
+  theme = "default", # https://bootswatch.com/
   bs4dash_vars(
     # navbar_white = "#75b8d1",
     # "gray-dark" = "#000000",
-    navbar_light_color = "#FFF", #"#4e4429",
+    navbar_light_color = "#FFF", # "#4e4429",
     navbar_light_active_color = "#FFF",
     navbar_light_hover_color = "#bec5cb"
   ),
