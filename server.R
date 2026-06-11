@@ -175,7 +175,7 @@ function(input, output, session) {
             sald = as.integer(sald),
             sald_pris = as.numeric(sald_pris)
           )
-        print(stock$data)
+
         setProgress(.5)
         category$data <- dbGetQuery(conn = con(), "SELECT * FROM categories") |>
           arrange(id)
@@ -239,9 +239,27 @@ function(input, output, session) {
         id_kund == clients$selected$id,
         sald == 1,
         giltig == 1,
+      ) |>
+      summarise(commission = sum(sald_pris) * 0.8 * 0.4)
+
+    totalSoldNew <- stock$data |>
+      filter(
+        id_kund == clients$selected$id,
+        sald == 1,
+        giltig == 1,
         sald_datum >= (Sys.Date() - months(12)) ## only count items that have been in stock for less than 12 months
       ) |>
       summarise(commission = sum(sald_pris) * 0.8 * 0.4)
+
+    print(payments$data)
+
+    totalPaidNew <- payments$data |>
+      filter(
+        id_kund == clients$selected$id,
+        utbetald == 1,
+        datum >= (Sys.Date() - months(12)) ## only count items that have been in stock for less than 12 months
+      ) |>
+      summarise(payed = sum(belopp))
 
     totalPaid <- payments$data |>
       filter(
@@ -250,7 +268,41 @@ function(input, output, session) {
       ) |>
       summarise(payed = sum(belopp))
 
-    payments$debt <- round(totalSold$commission - totalPaid$payed, 0)
+    ####
+    sales_last_year <- stock$data %>%
+      filter(
+        sald == 1,
+        sald_datum >= Sys.Date() - years(1)
+      ) %>%
+      group_by(id_kund) %>%
+      summarise(
+        total_sales = sum(sald_pris, na.rm = TRUE),
+        .groups = "drop"
+      )
+  print(sales_last_year)
+    
+    paid <- payments$data %>%
+      filter(utbetald == 1) %>%  # remove if all rows are payouts
+      group_by(id_kund) %>%
+      summarise(
+        total_paid = sum(belopp, na.rm = TRUE),
+        .groups = "drop"
+      )
+  print(paid)
+    
+    claimable <- clients$data %>%
+      select(id, namn) %>%
+      left_join(sales_last_year, by = c("id" = "id_kund")) %>%
+      left_join(paid, by = c("id" = "id_kund")) %>%
+      mutate(
+        total_sales = coalesce(total_sales, 0),
+        total_paid = coalesce(total_paid, 0),
+        available_balance = pmax(0, total_sales - total_paid)
+      )
+    
+  print(claimable)
+    
+    payments$debt <- round(totalSoldNew$commission - totalPaidNew$payed, 0)
 
     infoBox(
       title = "Innestående saldo",

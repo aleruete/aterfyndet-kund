@@ -15,15 +15,16 @@ library(DT)
 suppressPackageStartupMessages(library(tidyverse))
 conflicted::conflicts_prefer(dplyr::filter, .quiet = TRUE)
 library(lubridate)
-library(httr)
+# library(httr)
+library(httr2)
 library(jsonlite)
 library(glue)
 
 library(DBI)
 library(RSQLite)
 # remotes::install_github("karthik/rdrop2")
-library(rdrop2)
-drop_auth(rdstoken = "./token.rds")
+# library(rdrop2)
+# drop_auth(rdstoken = "./token.rds")
 
 
 ### Create the theme
